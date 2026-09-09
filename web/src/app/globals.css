@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+/*
+  Gage semantic tokens. Sources: creditcoin.org CSS bundle mined Sep 9 2026
+  (canvas, surface, hairlines, ink ladder, accent). Why each non-obvious token:
+  the strand states and status scale are the product's semantics, so they live
+  here, not in components.
+*/
+:root {
+  /* elevation ladder: canvas < surface < raised < overlay */
+  --canvas: #0c0e10; /* sponsor field color */
+  --surface: #111417; /* sponsor canvas-soft: cards, panels */
+  --raised: #171c22; /* one step up: hover tiles, popovers */
+  --overlay: #1d2329; /* modal scrims sit on this */
+
+  /* hairlines carry all structure: no drop shadows anywhere */
+  --hairline: #1f2428;
+  --hairline-strong: #2a3440;
+
+  /* text tiers (three max) */
+  --ink: #f0efee;
+  --mute: #aaacae;
+  --faint: #6e7073;
+
+  /* accent triple: accent for interactive/live, subtle for tints, foreground on accent fills */
+  --accent: #4976ff; /* sponsor buidl-blue */
+  --accent-deep: #3a67f5; /* hover/active fill */
+  --accent-soft: #7a9fff; /* attested-but-not-verified strand state, links on dark */
+  --accent-subtle: rgba(73, 118, 255, 0.14); /* tint fills, focus rings */
+  --on-accent: #ffffff;
+
+  /* status scale: color never the sole signal (each pairs a label + glyph) */
+  --ok: #3eaa6d; /* settled */
+  --warn: #e0a13c; /* expiring soon, pending reclaim window */
+  --danger: #e5484d; /* expired, failed proof */
+
+  /* radius by role */
+  --r-pill: 999px;
+  --r-panel: 12px;
+  --r-tile: 8px;
+
+  /* focus */
+  --focus-ring: 0 0 0 3px rgba(73, 118, 255, 0.35);
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-overlay: var(--overlay);
+  --color-hairline: var(--hairline);
+  --color-hairline-strong: var(--hairline-strong);
+  --color-ink: var(--ink);
+  --color-mute: var(--mute);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-deep: var(--accent-deep);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-subtle: var(--accent-subtle);
+  --color-on-accent: var(--on-accent);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
+
+  --font-display: var(--font-tektur);
+  --font-mono: var(--font-jetbrains);
+  --font-sans: var(--font-inter);
+
+  --radius-panel: 12px;
+  --radius-tile: 8px;
+}
+
+body {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* every numeric column and readout is tabular */
+.num {
+  font-family: var(--font-mono), monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* evidence hash truncation helper */
+.hash {
+  font-family: var(--font-mono), monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+/* mono microcopy: caps with the Butterick letterspacing floor */
+.microlabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -2,6 +2,16 @@
 
 Proof-settled deal escrow on Creditcoin Attestcoin. Event: BUIDL CTC 2026 Fall, DeFi track, deadline Sep 13 2026 23:59 ET.
 
+## Style Genome — Gage
+
+- **Mode:** G (layered neutral: near-black canvas, hairline-separated raised surfaces, one restrained accent on interactive elements only, depth from layering never glow), hybridized one level with Mode E's evidence discipline (status strips, every number carries its source). Not Mode A: no neon, no glow buttons; the sponsor's calm hairline system is the material.
+- **Axis pushes:** typography (Tektur display numerals pushed to poster scale clamp 5rem+ as graphics; JetBrains Mono for all evidence incl. `//`-style annotations, a grammar the sponsor itself uses); motion (state-transition choreography only: the strand moves when chain state moves, nothing loops); layout (centered editorial fold per the landed remlo lesson + tables-first console).
+- **Axes held conventional:** dark field, hairline elevation (sponsor tokens are literally hairline-based), pill buttons (sponsor grammar), standard nav.
+- **Neutral reference of the build:** the sponsor's own creditcoin.org, verified LIVE this build (rendered + CSS bundle mined): true-black field, Tektur hero with blue second line, mono `//` stat sublabels, blue pill CTA + ghost secondary, stat row with display numerals. Different from previous builds' references (dreamdex.io, a0.awsstatic.com, keeperhub.com).
+- **Signature move:** THE PROOF STRAND (see brief below).
+- **Ledger check:** tally v3 = dark + indigo + Source Code Pro mono + provenance-line signature; lading = light split planes + faithfulness diff; verger = warm paper + orange + decision bell. Gage differs on hue family (Creditcoin blue #4976FF, not violet), display face (Tektur, unused in ledger), and signature mechanics (fan-in strand geometry, not a line/diff/bell).
+- **Clone test:** beside creditcoin.org: same tokens but centered editorial fold, evidence-dense console, and the strand geometry; their 3D-render hero is replaced by a live product panel. Beside tally v3: different accent hue, different display face, different signature. A judge knowing both references sees a distinct build.
+
 ## Design brief: Gage
 
 - **Consensus default (banned):** purple/blue gradient hero, glassmorphic stat-card bento, glowing orbs, emoji feature icons, generic two-chain bridge diagram with arrows, "Powered by" footer. Field evidence: 8+ lending clones in the pile; assume their skin too.
