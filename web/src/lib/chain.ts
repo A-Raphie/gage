@@ -14,7 +14,8 @@ export const GAGE_DEAL_ADDRESS =
   process.env.NEXT_PUBLIC_GAGE_DEAL_ADDRESS ??
   "0xA93DD76Ce639Dd9BE4C780363d54706E098aa1c4";
 export const GAGE_SETTLEMENT_ADDRESS =
-  process.env.NEXT_PUBLIC_GAGE_SETTLEMENT_ADDRESS ?? ""; // empty until CC3 deploy
+  process.env.NEXT_PUBLIC_GAGE_SETTLEMENT_ADDRESS ??
+  "0xA93DD76Ce639Dd9BE4C780363d54706E098aa1c4"; // empty until CC3 deploy
 
 export const SEPOLIA_EXPLORER = "https://sepolia.etherscan.io";
 export const CC3_EXPLORER = "https://creditcoin-testnet.blockscout.com";
