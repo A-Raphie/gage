@@ -12,6 +12,7 @@ const env = (k: string, d?: string) => process.env[k] ?? d;
 const SEPOLIA_RPC = env('SEPOLIA_RPC_URL', 'https://ethereum-sepolia-rpc.publicnode.com')!;
 const CC3_RPC = env('CC3_RPC_URL', 'https://rpc.cc3-testnet.creditcoin.network')!;
 const PROVER_URL = env('PROOF_BUILDER_URL', 'https://prover.cc3-testnet.creditcoin.network')!;
+const PROOF_TIMEOUT_MS = Number(env('PROOF_TIMEOUT_MS', '30000'));
 const PK = env('PRIVATE_KEY');
 const DEAL_ADDR = env('GAGE_DEAL_ADDRESS');
 const SETTLE_ADDR = env('GAGE_SETTLEMENT_ADDRESS');
@@ -50,7 +51,7 @@ function log(...args: unknown[]) {
 }
 
 async function settleOne(settlement: Contract, p: Pending): Promise<string | null> {
-  const proofBuilder = new proofProvider.service.ProofBuilder(CHAIN_KEY, PROVER_URL, 8000);
+  const proofBuilder = new proofProvider.service.ProofBuilder(CHAIN_KEY, PROVER_URL, PROOF_TIMEOUT_MS);
   await proofBuilder.waitUntilHeightAttested(CHAIN_KEY, p.blockNumber);
   const result = await proofBuilder.getProof(p.txHash);
   if (!result.success || !result.data) throw new Error('proof failed: ' + result.error);
@@ -71,7 +72,7 @@ async function settleOne(settlement: Contract, p: Pending): Promise<string | nul
 }
 
 async function settleMany(settlement: Contract, batch: Pending[]): Promise<string | null> {
-  const proofBuilder = new proofProvider.service.ProofBuilder(CHAIN_KEY, PROVER_URL, 8000);
+  const proofBuilder = new proofProvider.service.ProofBuilder(CHAIN_KEY, PROVER_URL, PROOF_TIMEOUT_MS);
   const proofs: unknown[][] = [];
   for (const p of batch) {
     await proofBuilder.waitUntilHeightAttested(CHAIN_KEY, p.blockNumber);
@@ -126,8 +127,10 @@ async function main() {
         for (const raw of logs) {
           const txHash = raw.transactionHash;
           if (seen.has(txHash)) continue;
-          seen.add(txHash);
-          if (raw.topics.length !== 3) continue;
+          if (raw.topics.length !== 3) {
+            seen.add(txHash);
+            continue;
+          }
           const dealId = BigInt(raw.topics[1]);
           const payer = '0x' + raw.topics[2].slice(26);
           const [amount, ref] = coder.decode(['uint256', 'bytes32'], raw.data);
@@ -140,11 +143,14 @@ async function main() {
             deal.paymentAmount === amount &&
             deal.ref === ref;
           if (!open || !matches) {
+            // terminal for this payment: the deal is settled/cancelled or the
+            // payment can never match; remember it so we stop asking.
+            seen.add(txHash);
             log(`deal ${dealId}: not settleable (open=${open}, matches=${matches}) - skipping`);
             continue;
           }
           pending.push({ dealId, payer, amount, ref, txHash, blockNumber });
-          log(`payment detected for deal ${dealId}: ${formatEther(amount)} ETH in block ${blockNumber} (${txHash})`);
+          log(`payment pending for deal ${dealId}: ${formatEther(amount)} ETH in block ${blockNumber} (${txHash})`);
         }
 
         if (pending.length > 1) {
@@ -153,29 +159,33 @@ async function main() {
           try {
             const hash = await settleMany(settlement, batch);
             log(`SETTLED batch of ${batch.length}: ${hash}`);
+            batch.forEach((p) => seen.add(p.txHash));
           } catch (e) {
             log(`batch settle failed, falling back to singles: ${(e as Error).message}`);
             for (const p of batch) {
               try {
                 log(`SETTLED deal ${p.dealId}: ${await settleOne(settlement, p)}`);
+                seen.add(p.txHash);
               } catch (e2) {
-                log(`settle failed for deal ${p.dealId}: ${(e2 as Error).message}`);
+                log(`settle failed for deal ${p.dealId}, will retry next tick: ${(e2 as Error).message}`);
               }
             }
           }
           for (const p of rest) {
             try {
               log(`SETTLED deal ${p.dealId}: ${await settleOne(settlement, p)}`);
+              seen.add(p.txHash);
             } catch (e2) {
-              log(`settle failed for deal ${p.dealId}: ${(e2 as Error).message}`);
+              log(`settle failed for deal ${p.dealId}, will retry next tick: ${(e2 as Error).message}`);
             }
           }
         } else if (pending.length === 1) {
           const p = pending[0];
           try {
             log(`SETTLED deal ${p.dealId}: ${await settleOne(settlement, p)}`);
+            seen.add(p.txHash);
           } catch (e) {
-            log(`settle failed for deal ${p.dealId}: ${(e as Error).message}`);
+            log(`settle failed for deal ${p.dealId}, will retry next tick: ${(e as Error).message}`);
           }
         }
       }
