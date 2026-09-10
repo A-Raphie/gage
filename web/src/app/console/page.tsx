@@ -229,7 +229,7 @@ export default function Console() {
                     selectedDeal.ccState === 1
                       ? "settled"
                       : selectedDeal.paymentsSeen > 0
-                        ? "attested"
+                        ? "paid"
                         : "awaiting"
                   }
                   sourceName="Sepolia"
