@@ -20,7 +20,7 @@
   /* text tiers (three max) */
   --ink: #f0efee;
   --mute: #aaacae;
-  --faint: #6e7073;
+  --faint: #85878a; /* raised from 6e7073 (3.89:1, AA fail) to 5.37:1 on canvas */
 
   /* accent triple: accent for interactive/live, subtle for tints, foreground on accent fills */
   --accent: #4976ff; /* sponsor buidl-blue */

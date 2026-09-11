@@ -1,6 +1,7 @@
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Strand } from "@/components/strand";
+import { LiveProof } from "@/components/live-proof";
 
 export default function Home() {
   return (
@@ -40,6 +41,7 @@ export default function Home() {
           <p className="hash mt-6 break-all px-2 text-xs text-faint">
             live on sepolia · 0xA93DD76Ce639Dd9BE4C780363d54706E098aa1c4
           </p>
+          <LiveProof />
 
           {/* hero visual: a real proof from our run, labeled as a specimen deal */}
           <div className="mt-16 text-left">
@@ -55,6 +57,26 @@ export default function Home() {
               paymentTx="0x45044474aa2691ad1c1d7a6f472fa63f834791a466e579e7303d33612d1fe93a"
               height={11669038}
             />
+          </div>
+        </section>
+
+        {/* judge path */}
+        <section aria-label="90 second judge path" className="border-t border-hairline bg-surface">
+          <div className="mx-auto max-w-6xl px-6 py-10">
+            <p className="microlabel text-faint">the 90 second path</p>
+            <ol className="mt-4 grid gap-px overflow-hidden rounded-[var(--r-panel)] border border-hairline bg-hairline sm:grid-cols-3">
+              {[
+                { n: "01", t: "Open the console", d: "Live reads from both chains. No wallet, no signup." },
+                { n: "02", t: "Open deal #0001", d: "Terms, the proof strand, and the settled state." },
+                { n: "03", t: "Verify it yourself", d: "Explorer links on every deal; every claim on this page is exercised." },
+              ].map((s2) => (
+                <li key={s2.n} className="bg-surface p-5">
+                  <p className="num text-sm text-accent">{s2.n}</p>
+                  <p className="mt-2 font-medium">{s2.t}</p>
+                  <p className="mt-1 text-sm text-mute">{s2.d}</p>
+                </li>
+              ))}
+            </ol>
           </div>
         </section>
 

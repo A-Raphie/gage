@@ -160,6 +160,9 @@ export default function Console() {
           {phase === "ready" && deals.length > 0 && (
             <div className="mt-10 overflow-x-auto rounded-[var(--r-panel)] border border-hairline">
               <table className="w-full border-collapse text-sm">
+                <caption className="sr-only">
+                  Live deal registry read from the GageSettlement contract on Creditcoin CC3
+                </caption>
                 <thead>
                   <tr className="microlabel border-b border-hairline bg-surface text-left text-faint">
                     <th className="px-3 py-3 font-normal sm:px-4">deal</th>
