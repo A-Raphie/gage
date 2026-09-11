@@ -21,6 +21,7 @@ const START_BLOCK = Number(env('START_BLOCK', '0'));
 const BATCH_MAX = Number(env('BATCH_MAX', '3'));
 const POLL_MS = Number(env('POLL_MS', '15000'));
 const CONFIRM_DEPTH = Number(env('CONFIRM_DEPTH', '4'));
+const RUN_ONCE = env('RUN_ONCE', '0') === '1';
 
 // PaymentMade(uint256,address,uint256,bytes32)
 const PAYMENT_TOPIC0 = '0xd33aaa180016895d33ce7ad0841fe3c9e56cec30c0cf9a763f0e70825f732e3e';
@@ -108,7 +109,7 @@ async function main() {
   log(`worker wallet: ${await wallet.getAddress()} balance ${formatEther(await cc3.getBalance(await wallet.getAddress()))} CTC`);
 
   const seen = new Set<string>();
-  let from = START_BLOCK > 0 ? START_BLOCK : (await sepolia.getBlockNumber()) - 60;
+  let from = START_BLOCK > 0 ? START_BLOCK : (await sepolia.getBlockNumber()) - 140;
 
   for (;;) {
     try {
@@ -191,6 +192,10 @@ async function main() {
       }
     } catch (e) {
       log('tick error:', (e as Error).message);
+    }
+    if (RUN_ONCE) {
+      log('RUN_ONCE: single pass complete');
+      return;
     }
     await new Promise((r) => setTimeout(r, POLL_MS));
   }
