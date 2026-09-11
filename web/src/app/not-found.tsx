@@ -17,7 +17,7 @@ export default function NotFound() {
           </p>
           <a
             href="/console"
-            className="mt-8 inline-block rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-on-accent transition-colors hover:bg-accent-deep"
+            className="mt-8 inline-block rounded-full bg-accent-deep px-6 py-2.5 text-sm font-medium text-on-accent transition-colors hover:bg-accent"
           >
             Open the console
           </a>

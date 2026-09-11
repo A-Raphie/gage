@@ -5,7 +5,6 @@
  * settlement registry. Real values or nothing renders.
  */
 import { useEffect, useState } from "react";
-import { Contract, JsonRpcProvider } from "ethers";
 import { GAGE_SETTLEMENT_ADDRESS, CC3_RPC, settlementAbi } from "@/lib/chain";
 
 export function LiveProof() {
@@ -14,6 +13,7 @@ export function LiveProof() {
   useEffect(() => {
     const read = async () => {
       try {
+        const { Contract, JsonRpcProvider } = await import("ethers");
         const cc3 = new JsonRpcProvider(CC3_RPC);
         const s = new Contract(GAGE_SETTLEMENT_ADDRESS, settlementAbi, cc3);
         const next: bigint = await s.nextDealId();

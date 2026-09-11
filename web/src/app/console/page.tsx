@@ -72,7 +72,7 @@ export default function Console() {
   return (
     <>
       <SiteHeader />
-      <main className="flex-1">
+      <main id="main" className="flex-1">
         <div className="mx-auto max-w-6xl px-6 py-12">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>

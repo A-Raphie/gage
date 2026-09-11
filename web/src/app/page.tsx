@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <>
       <SiteHeader />
-      <main className="flex-1">
+      <main id="main" className="flex-1">
         {/* hero */}
         <section className="mx-auto max-w-3xl px-6 pt-24 pb-16 text-center sm:pt-32">
           <p className="microlabel text-accent">
@@ -27,7 +27,7 @@ export default function Home() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <a
               href="/console"
-              className="rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-on-accent transition-colors hover:bg-accent-deep active:scale-[0.98]"
+              className="rounded-full bg-accent-deep px-6 py-2.5 text-sm font-medium text-on-accent transition-colors hover:bg-accent active:scale-[0.98]"
             >
               Open the console
             </a>
@@ -229,7 +229,7 @@ export default function Home() {
             <div className="mt-16 text-center">
               <a
                 href="/console"
-                className="inline-block rounded-full bg-accent px-8 py-3 text-sm font-medium text-on-accent transition-colors hover:bg-accent-deep active:scale-[0.98]"
+                className="inline-block rounded-full bg-accent-deep px-8 py-3 text-sm font-medium text-on-accent transition-colors hover:bg-accent active:scale-[0.98]"
               >
                 Open the console
               </a>
