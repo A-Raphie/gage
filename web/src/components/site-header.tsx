@@ -10,7 +10,7 @@ export function SiteHeader() {
         <nav className="flex items-center gap-6">
           <Link
             href="/#mechanism"
-            className="text-sm text-mute transition-colors hover:text-ink"
+            className="hidden text-sm text-mute transition-colors hover:text-ink sm:inline"
           >
             How it works
           </Link>

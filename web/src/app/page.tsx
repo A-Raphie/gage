@@ -12,7 +12,7 @@ export default function Home() {
           <p className="microlabel text-accent">
             proof-settled escrow · attestcoin protocol
           </p>
-          <h1 className="mt-6 font-display text-5xl leading-[0.95] tracking-tight sm:text-7xl">
+          <h1 className="mt-6 font-display text-4xl leading-[0.95] tracking-tight sm:text-7xl">
             Pay on Ethereum.
             <br />
             <span className="text-accent">Release on proof.</span>
@@ -37,7 +37,7 @@ export default function Home() {
               Read the mechanism
             </a>
           </div>
-          <p className="hash mt-6 text-xs text-faint">
+          <p className="hash mt-6 break-all px-2 text-xs text-faint">
             live on sepolia · 0xA93DD76Ce639Dd9BE4C780363d54706E098aa1c4
           </p>
 

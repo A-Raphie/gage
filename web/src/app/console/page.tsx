@@ -165,8 +165,8 @@ export default function Console() {
                     <th className="px-4 py-3 font-normal">deal</th>
                     <th className="px-4 py-3 font-normal">gage (cc3)</th>
                     <th className="px-4 py-3 font-normal">payment (sep)</th>
-                    <th className="px-4 py-3 font-normal">escrowed</th>
-                    <th className="px-4 py-3 font-normal">expiry</th>
+                    <th className="hidden px-4 py-3 font-normal sm:table-cell">escrowed</th>
+                    <th className="hidden px-4 py-3 font-normal sm:table-cell">expiry</th>
                     <th className="px-4 py-3 font-normal">state</th>
                   </tr>
                 </thead>
@@ -186,10 +186,10 @@ export default function Console() {
                       <td className="num px-4 py-3 text-mute">
                         {eth(d.paymentAmount)}
                       </td>
-                      <td className="num px-4 py-3 text-mute">
+                      <td className="num hidden px-4 py-3 text-mute sm:table-cell">
                         {eth(d.escrowTotal)}
                       </td>
-                      <td className="num px-4 py-3 text-mute">
+                      <td className="num hidden px-4 py-3 text-mute sm:table-cell">
                         {d.expiry
                           ? new Date(d.expiry * 1000)
                               .toISOString()
