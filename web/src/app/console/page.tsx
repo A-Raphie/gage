@@ -162,12 +162,12 @@ export default function Console() {
               <table className="w-full border-collapse text-sm">
                 <thead>
                   <tr className="microlabel border-b border-hairline bg-surface text-left text-faint">
-                    <th className="px-4 py-3 font-normal">deal</th>
-                    <th className="px-4 py-3 font-normal">gage (cc3)</th>
-                    <th className="px-4 py-3 font-normal">payment (sep)</th>
+                    <th className="px-3 py-3 font-normal sm:px-4">deal</th>
+                    <th className="px-3 py-3 font-normal sm:px-4">gage (cc3)</th>
+                    <th className="px-3 py-3 font-normal sm:px-4">payment (sep)</th>
                     <th className="hidden px-4 py-3 font-normal sm:table-cell">escrowed</th>
                     <th className="hidden px-4 py-3 font-normal sm:table-cell">expiry</th>
-                    <th className="px-4 py-3 font-normal">state</th>
+                    <th className="px-3 py-3 font-normal sm:px-4">state</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -177,7 +177,7 @@ export default function Console() {
                       onClick={() => setSelected(d.id)}
                       className="cursor-pointer border-b border-hairline transition-colors last:border-0 hover:bg-raised"
                     >
-                      <td className="num px-4 py-3">
+                      <td className="num px-3 py-3 sm:px-4">
                         #{String(d.id).padStart(4, "0")}
                       </td>
                       <td className="num px-4 py-3 text-mute">
@@ -186,10 +186,10 @@ export default function Console() {
                       <td className="num px-4 py-3 text-mute">
                         {eth(d.paymentAmount)}
                       </td>
-                      <td className="num hidden px-4 py-3 text-mute sm:table-cell">
+                      <td className="num hidden px-3 py-3 text-mute sm:px-4 sm:table-cell">
                         {eth(d.escrowTotal)}
                       </td>
-                      <td className="num hidden px-4 py-3 text-mute sm:table-cell">
+                      <td className="num hidden px-3 py-3 text-mute sm:px-4 sm:table-cell">
                         {d.expiry
                           ? new Date(d.expiry * 1000)
                               .toISOString()
@@ -197,7 +197,7 @@ export default function Console() {
                               .replace("T", " ")
                           : "·"}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-3 py-3 sm:px-4">
                         <StateChip deal={d} />
                       </td>
                     </tr>
