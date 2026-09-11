@@ -1,10 +1,12 @@
 "use client";
 
 import { Contract, JsonRpcProvider, formatEther } from "ethers";
+import { randomBytes } from "node:crypto";
 
 /**
- * Chain reads for the console. Read-only, no wallet needed: the contracts are
- * the store. Addresses come from build env so a redeploy is a config flip.
+ * Chain reads + write ABIs for the console. Read-only, no wallet needed: the
+ * contracts are the store. The CC3 settlement registry is canonical: a deal
+ * exists the moment the maker locks the gage; Sepolia payment data merges by id.
  */
 
 export const SEPOLIA_RPC = "https://ethereum-sepolia-rpc.publicnode.com";
@@ -15,26 +17,41 @@ export const GAGE_DEAL_ADDRESS =
   "0xA93DD76Ce639Dd9BE4C780363d54706E098aa1c4";
 export const GAGE_SETTLEMENT_ADDRESS =
   process.env.NEXT_PUBLIC_GAGE_SETTLEMENT_ADDRESS ??
-  "0xA93DD76Ce639Dd9BE4C780363d54706E098aa1c4"; // empty until CC3 deploy
+  "0xA93DD76Ce639Dd9BE4C780363d54706E098aa1c4";
 
 export const SEPOLIA_EXPLORER = "https://sepolia.etherscan.io";
 export const CC3_EXPLORER = "https://creditcoin-testnet.blockscout.com";
 
-const dealAbi = [
+export const dealAbi = [
   "function nextDealId() view returns (uint256)",
   "function dealTotal(uint256) view returns (uint256)",
   "function paymentCount(uint256) view returns (uint256)",
   "function payments(uint256,uint256) view returns (address payer,uint96 amount,bytes32 ref,uint64 paidAt,bool reclaimed)",
+  "function registerDeal() returns (uint256)",
+  "function pay(uint256 dealId, bytes32 ref) payable",
 ];
 
-const settlementAbi = [
+export const settlementAbi = [
   "function nextDealId() view returns (uint256)",
   "function deals(uint256) view returns (address maker,address taker,uint96 amount,uint64 expiry,uint96 paymentAmount,address sourceEmitter,bytes32 ref,uint8 state)",
+  "function open(address taker,uint64 expiry,uint96 paymentAmount,address sourceEmitter,bytes32 ref) payable returns (uint256 dealId)",
+  "function cancelExpired(uint256 dealId)",
 ];
+
+/** Random 32-byte payment reference for a new deal. */
+export function makeRef(): string {
+  return "0x" + randomBytes(32).toString("hex");
+}
+
+/** Short human rendering of a ref (first 4 bytes). */
+export function shortRef(ref?: string): string {
+  if (!ref) return "·";
+  return "0x" + ref.slice(2, 10);
+}
 
 export interface DealView {
   id: number;
-  // creditcoin side
+  // creditcoin side (canonical terms)
   maker?: string;
   taker?: string;
   gageAmount?: bigint; // wei CTC locked
@@ -58,50 +75,54 @@ export async function loadDeals(): Promise<{
 }> {
   const sepolia = new JsonRpcProvider(SEPOLIA_RPC);
   const deal = new Contract(GAGE_DEAL_ADDRESS, dealAbi, sepolia);
+  const cc3 = new JsonRpcProvider(CC3_RPC);
+  const settlement = new Contract(GAGE_SETTLEMENT_ADDRESS, settlementAbi, cc3);
 
   let settlementLive = false;
-  let settlement: Contract | null = null;
-  const cc3 = new JsonRpcProvider(CC3_RPC);
-  if (GAGE_SETTLEMENT_ADDRESS) {
+  try {
     const code = await cc3.getCode(GAGE_SETTLEMENT_ADDRESS);
-    if (code && code !== "0x") {
-      settlementLive = true;
-      settlement = new Contract(GAGE_SETTLEMENT_ADDRESS, settlementAbi, cc3);
-    }
+    settlementLive = !!code && code !== "0x";
+  } catch {
+    settlementLive = false;
+  }
+  if (!settlementLive) {
+    return { phase: "ready", deals: [], settlementLive };
   }
 
-  const nextId: bigint = await deal.nextDealId();
+  const nextId: bigint = await settlement.nextDealId();
   const count = Number(nextId) - 1;
   const deals: DealView[] = [];
 
   for (let i = 1; i <= count; i++) {
-    const view: DealView = { id: i, paymentsSeen: 0, escrowTotal: 0n };
-    const [total, pCount] = await Promise.all([
-      deal.dealTotal(i),
-      deal.paymentCount(i),
-    ]);
-    view.escrowTotal = total;
-    view.paymentsSeen = Number(pCount);
-    if (view.paymentsSeen > 0) {
-      const [payer, amount, , paidAt] = await deal.payments(
-        i,
-        view.paymentsSeen - 1,
-      );
-      view.lastPayment = { payer, amount, paidAt: Number(paidAt) };
-    }
-    if (settlement) {
-      try {
-        const d = await settlement.deals(i);
-        view.maker = d.maker;
-        view.taker = d.taker;
-        view.gageAmount = d.amount;
-        view.expiry = Number(d.expiry);
-        view.paymentAmount = d.paymentAmount;
-        view.ref = d.ref;
-        view.ccState = Number(d.state);
-      } catch {
-        // deal id opened on sepolia only; leave creditcoin side undefined
+    const d = await settlement.deals(i);
+    const view: DealView = {
+      id: i,
+      maker: d.maker,
+      taker: d.taker,
+      gageAmount: d.amount,
+      expiry: Number(d.expiry),
+      paymentAmount: d.paymentAmount,
+      ref: d.ref,
+      ccState: Number(d.state),
+      paymentsSeen: 0,
+      escrowTotal: 0n,
+    };
+    try {
+      const [total, pCount] = await Promise.all([
+        deal.dealTotal(i),
+        deal.paymentCount(i),
+      ]);
+      view.escrowTotal = total;
+      view.paymentsSeen = Number(pCount);
+      if (view.paymentsSeen > 0) {
+        const [payer, amount, , paidAt] = await deal.payments(
+          i,
+          view.paymentsSeen - 1,
+        );
+        view.lastPayment = { payer, amount, paidAt: Number(paidAt) };
       }
+    } catch {
+      // sepolia side unreachable for this id; terms still show
     }
     deals.push(view);
   }
@@ -109,7 +130,7 @@ export async function loadDeals(): Promise<{
   return { phase: "ready", deals, settlementLive };
 }
 
-/** Derived display state for a deal (color never the sole signal: chips pair glyph + label). */
+/** Derived display state for a deal (chips pair glyph + label; color never the sole signal). */
 export function dealState(d: DealView): {
   key: string;
   label: string;
