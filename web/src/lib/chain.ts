@@ -93,8 +93,17 @@ export async function loadDeals(): Promise<{
   const count = Number(nextId) - 1;
   const deals: DealView[] = [];
 
+  const terms = await Promise.all(
+    Array.from({ length: count }, (_, k) => settlement.deals(k + 1).catch(() => null)),
+  );
+  const sepoliaSides = await Promise.all(
+    Array.from({ length: count }, (_, k) =>
+      Promise.all([deal.dealTotal(k + 1), deal.paymentCount(k + 1)]).catch(() => null),
+    ),
+  );
   for (let i = 1; i <= count; i++) {
-    const d = await settlement.deals(i);
+    const d = terms[i - 1];
+    if (!d) continue;
     const view: DealView = {
       id: i,
       maker: d.maker,
@@ -107,22 +116,22 @@ export async function loadDeals(): Promise<{
       paymentsSeen: 0,
       escrowTotal: 0n,
     };
-    try {
-      const [total, pCount] = await Promise.all([
-        deal.dealTotal(i),
-        deal.paymentCount(i),
-      ]);
+    const side = sepoliaSides[i - 1];
+    if (side) {
+      const [total, pCount] = side;
       view.escrowTotal = total;
       view.paymentsSeen = Number(pCount);
       if (view.paymentsSeen > 0) {
-        const [payer, amount, , paidAt] = await deal.payments(
-          i,
-          view.paymentsSeen - 1,
-        );
-        view.lastPayment = { payer, amount, paidAt: Number(paidAt) };
+        try {
+          const [payer, amount, , paidAt] = await deal.payments(
+            i,
+            view.paymentsSeen - 1,
+          );
+          view.lastPayment = { payer, amount, paidAt: Number(paidAt) };
+        } catch {
+          // last-payment detail is optional
+        }
       }
-    } catch {
-      // sepolia side unreachable for this id; terms still show
     }
     deals.push(view);
   }
