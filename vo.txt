@@ -1,0 +1,13 @@
+Ten deals on two chains. Eight settled by a mathematical proof. One refunded when it expired. And not one bridge involved. This is the receipt for all of it, and by the end of this video you will know how to check every number yourself.
+
+Cross-chain deals today run on trust. In a bridge that can be hacked: two billion dollars of bridge hacks in a single year. Or in an oracle operator everyone has to believe. Gage removes both from the deal entirely. A payment is a fact. And Gage settles deals on facts. The whole mechanism is four steps, printed right on the page.
+
+Here is the live console. No wallet. No signup. Every value on this page is read directly from the contracts, right now. GageDeal holds the payments on Sepolia. GageSettlement holds the gages on Creditcoin. Same address on both chains. The settlement contract verifies Attestcoin proofs through the zero F D two precompile. Settled. Cancelled on expiry. The chain remembers all of it.
+
+Deal eleven is open. The gage is locked on Creditcoin, and the terms are fixed: one payment, one reference, one payout address. Now the payment, on Sepolia. There it is. Payment seen. Now the chain work happens on its own. Creditcoin's attestor set witnesses that exact Ethereum block. A Merkle proof and a continuity proof are generated for the payment. The settlement contract checks both, synchronously, through the precompile. It decodes the proved payment, matches the amount and the reference against the deal terms, and releases the gage in the very same transaction. Nothing moved by trust. The payment receipt is the settlement.
+
+And depth. Up to ten payments can share one Creditcoin transaction. Here is the receipt on the explorer: two payments, proved together, two gages released, one transaction, one hash. That is batch settlement running on-chain. Not on a slide.
+
+What we will not claim. This is testnet value. The counterparties in the demo are our own wallets, disclosed in the readme. The settlement worker is a cron job, and it is replaceable by anyone: the contract has no privileged relayer. If we disappeared tonight, every open deal would still settle. And the expiry refund you saw earlier was real value returning on-chain.
+
+Ten deals. Eight proofs. One batch. Zero bridges. Gage: pay on Ethereum, release on proof. The app, the contracts, and every receipt are linked below. Check them.
