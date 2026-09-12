@@ -41,6 +41,131 @@ function StateChip({ deal }: { deal: DealView }) {
   );
 }
 
+
+function OperatorLock({ onDone }: { onDone: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [gage, setGage] = useState("1");
+  const [payment, setPayment] = useState("0.001");
+  const [hours, setHours] = useState(48);
+  const [pending, setPending] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const [hash, setHash] = useState<string | null>(null);
+
+  const lock = useCallback(async () => {
+    setErr(null);
+    setPending(true);
+    try {
+      const r = await fetch("/api/operator", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "lock", gage, payment, hours }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || "lock failed");
+      setHash(j.hash);
+      onDone();
+    } catch (e) {
+      setErr((e as Error).message.slice(0, 200));
+    } finally {
+      setPending(false);
+    }
+  }, [gage, payment, hours, onDone]);
+
+  return (
+    <div className="mt-6 rounded-[var(--r-panel)] border border-hairline bg-surface p-5">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <p className="microlabel text-faint">operator console · signs with the project testnet key server-side</p>
+          <p className="mt-1 text-xs text-faint">Testnet value only. This is the same flow any maker runs: lock a gage, hand the payment to the counterparty.</p>
+        </div>
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="shrink-0 rounded-full bg-accent-deep px-5 py-2 text-sm font-medium text-on-accent transition-colors hover:bg-accent active:scale-[0.98]"
+        >
+          {open ? "Close" : "Lock gage"}
+        </button>
+      </div>
+      {open && (
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          <label className="block">
+            <span className="microlabel text-faint">gage size (CTC)</span>
+            <input value={gage} onChange={(e) => setGage(e.target.value)} inputMode="decimal"
+              className="num mt-1.5 w-full rounded-[var(--r-tile)] border border-hairline-strong bg-canvas px-3 py-2 text-sm text-ink focus:border-accent" />
+          </label>
+          <label className="block">
+            <span className="microlabel text-faint">payment (ETH expected)</span>
+            <input value={payment} onChange={(e) => setPayment(e.target.value)} inputMode="decimal"
+              className="num mt-1.5 w-full rounded-[var(--r-tile)] border border-hairline-strong bg-canvas px-3 py-2 text-sm text-ink focus:border-accent" />
+          </label>
+          <label className="block">
+            <span className="microlabel text-faint">expires in</span>
+            <select value={hours} onChange={(e) => setHours(Number(e.target.value))}
+              className="mt-1.5 w-full rounded-[var(--r-tile)] border border-hairline-strong bg-canvas px-3 py-2 text-sm text-ink focus:border-accent">
+              <option value={24}>24 hours</option>
+              <option value={48}>48 hours</option>
+              <option value={168}>7 days</option>
+            </select>
+          </label>
+          {err && <p className="text-sm text-danger sm:col-span-3">{err}</p>}
+          {hash && <p className="hash text-xs text-ok sm:col-span-3">◆ locked · tx {hash.slice(0, 14)}…</p>}
+          <div className="sm:col-span-3">
+            <button
+              onClick={() => void lock()}
+              disabled={pending}
+              className="rounded-full bg-accent-deep px-6 py-2.5 text-sm font-medium text-on-accent transition-colors hover:bg-accent active:scale-[0.98] disabled:opacity-50"
+            >
+              {pending ? "Locking gage…" : "Lock gage · open deal"}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function OperatorPay({ deal, onDone }: { deal: DealView; onDone: () => void }) {
+  const [pending, setPending] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const [hash, setHash] = useState<string | null>(null);
+  const amount = deal.paymentAmount !== undefined ? eth(deal.paymentAmount) : "ETH";
+
+  const pay = useCallback(async () => {
+    setErr(null);
+    setPending(true);
+    try {
+      const r = await fetch("/api/operator", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "pay", dealId: deal.id }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || "pay failed");
+      setHash(j.hash);
+      onDone();
+    } catch (e) {
+      setErr((e as Error).message.slice(0, 200));
+    } finally {
+      setPending(false);
+    }
+  }, [deal, onDone]);
+
+  if (hash) {
+    return <p className="hash text-xs text-ok">◆ paid · tx {hash.slice(0, 14)}…</p>;
+  }
+  return (
+    <div>
+      <button
+        onClick={() => void pay()}
+        disabled={pending || deal.paymentAmount === undefined}
+        className="rounded-full bg-accent-deep px-5 py-2 text-sm font-medium text-on-accent transition-colors hover:bg-accent active:scale-[0.98] disabled:opacity-50"
+      >
+        {pending ? "Paying…" : `Pay ${amount} on Sepolia`}
+      </button>
+      {err && <p className="mt-2 text-xs text-danger">{err}</p>}
+    </div>
+  );
+}
+
 export default function Console() {
   const [phase, setPhase] = useState<LoadPhase>("loading");
   const [deals, setDeals] = useState<DealView[]>([]);
@@ -109,6 +234,8 @@ export default function Console() {
                 : "awaiting cc3 deployment"}
             </span>
           </div>
+
+          <OperatorLock onDone={() => void refresh()} />
 
           {/* states: loading · error · empty · partial · ready */}
           {phase === "loading" && (
