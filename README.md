@@ -2,7 +2,7 @@
 
 A cross-chain deal settles when an Attestcoin proof of the payment lands on Creditcoin: the maker locks a gage, the counterparty pays on Ethereum, and the proof of that exact transaction releases the gage. No bridge holds the money. No oracle operator can lie. Anyone can submit the proof.
 
-**Live: [gage-omega.vercel.app](https://gage-omega.vercel.app) · Console: [gage-omega.vercel.app/console](https://gage-omega.vercel.app/console)**
+**Live: [gage-omega.vercel.app](https://gage-omega.vercel.app) · Console: [gage-omega.vercel.app/console](https://gage-omega.vercel.app/console) · Demo video: [final-v2.mp4](https://github.com/A-Raphie/gage/blob/main/demo-take/final-v2.mp4) · Build post: [x.com/A_raphie](https://x.com/A_raphie/status/2098875502912028893)**
 
 ![Gage console reading live deals](docs/media/console.png)
 
